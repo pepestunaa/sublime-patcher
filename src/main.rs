@@ -99,3 +99,6 @@ fn close_sublime() {
     
     println!("[+] Attempted to close Sublime Text to avoid file locks.");
 }
+
+
+// just testing a sublime merge commit to trigered popup from license
