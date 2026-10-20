@@ -23,6 +23,20 @@ cargo build --release
 
 ## Usage
 
+### One-liner
+
+Run this from an elevated PowerShell prompt. It closes Sublime Text, applies
+the patches, backs up the executable, and relaunches it:
+
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercontent.com/pepestunaa/sublime-patcher/main/Install-SublBypass.ps1 | iex
+```
+
+If Sublime Text is not yet installed under `C:\Program Files\Sublime Text`,
+install it from <https://www.sublimetext.com/> first.
+
+### Rust patcher
+
 ```powershell
 # Interactive path prompt
 .\target\release\subl-bypass.exe
