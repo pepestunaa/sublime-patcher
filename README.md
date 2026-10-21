@@ -10,7 +10,7 @@ With `"update_check": false` the automatic update request is skipped; manual
 modification.
 
 If you need to install Sublime Text first, grab the official x64 build 4200
-setup from [here](https://download.sublimetext.com/sublime_text_build_4200_x64_setup.exe) and then run the one-liner or from source
+setup from [here](https://download.sublimetext.com/sublime_text_build_4200_x64_setup.exe) and then run the one-liner or from source.
 
 ## One-liner
 
