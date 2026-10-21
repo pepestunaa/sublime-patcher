@@ -9,6 +9,9 @@ With `"update_check": false` the automatic update request is skipped; manual
 `Help > Check for Updates...` still works. Other builds are rejected without
 modification.
 
+If you need to install Sublime Text first, grab the official x64 build 4200
+setup from [here](https://download.sublimetext.com/sublime_text_build_4200_x64_setup.exe) and then run the one-liner or from source
+
 ## One-liner
 
 Run this from any PowerShell prompt. The first run asks for Administrator
@@ -20,10 +23,6 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 ```
 
 Pass `-NoElevate` if you want to decline the UAC ask.
-
-If you need to install Sublime Text first, grab the official x64 build 4200
-setup from <https://download.sublimetext.com/sublime_text_build_4200_x64_setup.exe>
-and run it, then run the one-liner.
 
 ## From source
 
