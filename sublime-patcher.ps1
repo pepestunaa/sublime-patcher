@@ -32,13 +32,17 @@ param(
 
     [switch]$DryRun,
 
-    [switch]$NoRestart
+    [switch]$NoRestart,
+
+    # Never self-elevate; print the manual command instead.
+    [switch]$NoElevate
 )
 
 $ErrorActionPreference = 'Stop'
 
 $SublimeProcess = 'sublime_text'
 $PatchTarget = [IO.Path]::GetFullPath($Path)
+$ScriptUrl = 'https://raw.githubusercontent.com/pepestunaa/sublime-patcher/main/sublime-patcher.ps1'
 
 $Patches = @(
     @{
@@ -154,7 +158,45 @@ function Show-SublPatchElevationHint {
     if ($MyInvocation.ScriptName) {
         Write-SublPatch ("    powershell -ExecutionPolicy Bypass -File `"{0}`"" -f $MyInvocation.ScriptName) 'Yellow'
     } else {
-        Write-SublPatch "    powershell -ExecutionPolicy Bypass -Command `"Set-ExecutionPolicy Bypass -Scope Process -Force; irm 'https://raw.githubusercontent.com/pepestunaa/sublime-patcher/main/sublime-patcher.ps1' | iex`"" 'Yellow'
+        Write-SublPatch "    powershell -ExecutionPolicy Bypass -Command `"Set-ExecutionPolicy Bypass -Scope Process -Force; irm '$ScriptUrl' | iex`"" 'Yellow'
+    }
+}
+
+function Test-SublPatchElevated {
+    $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($identity)
+    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+function Get-SublPatchSelfPath {
+    if ($MyInvocation.ScriptName -and (Test-Path -LiteralPath $MyInvocation.ScriptName -PathType Leaf)) {
+        return (Get-Item -LiteralPath $MyInvocation.ScriptName).FullName
+    }
+    # Invoked via irm|iex: materialize a temp copy the elevated child can execute.
+    $temp = Join-Path $env:TEMP 'sublime-patcher-self.ps1'
+    Invoke-WebRequest -Uri $ScriptUrl -OutFile $temp -UseBasicParsing
+    return $temp
+}
+
+function Start-SublPatchElevation {
+    param(
+        [string]$ChildScript,
+        [string]$TargetPath,
+        [switch]$DryRun,
+        [switch]$NoRestart
+    )
+    try {
+        $arguments = @('-NoProfile','-ExecutionPolicy','Bypass','-File', ('"{0}"' -f $ChildScript), '-NoElevate')
+        if ($DryRun)      { $arguments += '-DryRun' }
+        if ($NoRestart)   { $arguments += '-NoRestart' }
+        if ($TargetPath)  { $arguments += @('-Path', ('"{0}"' -f $TargetPath)) }
+
+        Write-SublPatch '[*] Relaunching as Administrator. Accept the UAC prompt to continue...' 'Yellow'
+        Start-Process -FilePath 'powershell.exe' -Verb RunAs -Wait -ArgumentList $arguments | Out-Null
+        return $true
+    } catch {
+        Write-SublPatch ("[-] Could not self-elevate: {0}" -f $_.Exception.Message) 'Red'
+        return $false
     }
 }
 
@@ -173,6 +215,20 @@ Write-SublPatch ('[*] Size:   {0} bytes' -f $bytes.Length) 'Cyan'
 if (-not $DryRun) {
     $writable = Test-SublPatchWritable (Split-Path -Parent $PatchTarget)
     if (-not $writable) {
+        if (Test-SublPatchElevated) {
+            Write-SublPatch ('[-] Elevated session still cannot write to: {0}' -f (Split-Path -Parent $PatchTarget)) 'Red'
+            exit 1
+        }
+        if (-not $NoElevate) {
+            try {
+                $self = Get-SublPatchSelfPath
+                if (Start-SublPatchElevation -ChildScript $self -TargetPath $PatchTarget -DryRun:$DryRun -NoRestart:$NoRestart) {
+                    exit 0
+                }
+            } catch {
+                Write-SublPatch ("[-] Could not fetch a self copy for elevation: {0}" -f $_.Exception.Message) 'Red'
+            }
+        }
         Write-SublPatch ('[-] Directory is not writable: {0}' -f (Split-Path -Parent $PatchTarget)) 'Red'
         Show-SublPatchElevationHint
         exit 1

@@ -11,12 +11,15 @@ modification.
 
 ## One-liner
 
-Run this from an elevated PowerShell prompt. It closes Sublime Text, patches,
-backs up, and relaunches it:
+Run this from any PowerShell prompt. The first run asks for Administrator
+(UAC) when it needs to write to `C:\Program Files\Sublime Text`, then closes
+Sublime Text, patches, backs up, and relaunches it:
 
 ```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercontent.com/pepestunaa/sublime-patcher/main/sublime-patcher.ps1 | iex
 ```
+
+Pass `-NoElevate` if you want to decline the UAC ask.
 
 ## From source
 

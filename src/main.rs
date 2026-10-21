@@ -88,7 +88,7 @@ fn run() -> Result<(), String> {
 
     fs::write(&target, &data).map_err(|error| {
         format!(
-            "could not write {}: {error} (run as Administrator)",
+            "could not write {}: {error} (run as Administrator, or re-launch from sublime-patcher.ps1 which asks for elevation automatically)",
             target.display()
         )
     })?;
