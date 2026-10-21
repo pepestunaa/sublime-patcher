@@ -21,6 +21,10 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercont
 
 Pass `-NoElevate` if you want to decline the UAC ask.
 
+If you need to install Sublime Text first, grab the official x64 build 4200
+setup from <https://download.sublimetext.com/sublime_text_build_4200_x64_setup.exe>
+and run it, then run the one-liner.
+
 ## From source
 
 ```powershell
