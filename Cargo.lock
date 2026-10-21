@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "subl-bypass"
+name = "sublime-patcher"
 version = "0.1.0"
