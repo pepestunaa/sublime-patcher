@@ -1,13 +1,20 @@
 # sublime-patcher
 
-Patches Sublime Text 4 build 4200 x64 (Windows) in place. Two byte patches:
+Patches Sublime Text 4 build 4200 x64 (Windows) in place. Three byte patches:
 
 - **UI/license flag** — file offset `0x46B80`
 - **automatic update-check override** — file offset `0x32623`
+- **update-check startup gate** — file offset `0x31B52`
 
 With `"update_check": false` the automatic update request is skipped; manual
 `Help > Check for Updates...` still works. Other builds are rejected without
 modification.
+
+The startup gate matters because build 4200 only honors `update_check` for
+licensed copies: at launch an unlicensed copy never reads the setting, so the
+internal auto-check flag keeps its on-disk default of `true` and a due check
+fires even with the override patch alone. The gate patch makes the startup
+path load the setting unconditionally.
 
 If you need to install Sublime Text first, grab the official x64 build 4200
 setup from [here](https://download.sublimetext.com/sublime_text_build_4200_x64_setup.exe) and then run the one-liner or from source.

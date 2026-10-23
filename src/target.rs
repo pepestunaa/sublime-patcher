@@ -98,7 +98,8 @@ Options:
 
 Patches:
   1. UI/license flag (build {BUILD})
-  2. Automatic update-check override (build {BUILD})"
+  2. Automatic update-check override (build {BUILD})
+  3. Update-check startup gate (build {BUILD})"
     );
 }
 

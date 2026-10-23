@@ -4,9 +4,10 @@
   In-place patcher for Sublime Text 4 build 4200 x64 (Windows).
 
 .DESCRIPTION
-  Applies the UI/license-flag patch and the automatic update-check override
-  in one run. Refuses to write unless every signature is found in the
-  expected file, and creates a backup before any write.
+  Applies the UI/license-flag patch, the automatic update-check override,
+  and the update-check startup gate in one run. Refuses to write unless
+  every signature is found in the expected file, and creates a backup
+  before any write.
 
 .EXAMPLE
   .\sublime-patcher.ps1
@@ -56,6 +57,12 @@ $Patches = @(
         Description = 'JNZ -> JMP so the forced update_check write is skipped (file offset 0x32623).'
         Original    = [byte[]](0x80, 0x78, 0x05, 0x00, 0x75, 0x07, 0xC6, 0x05, 0xB4, 0xDA, 0x6C, 0x00, 0x01)
         Replacement = [byte[]](0x80, 0x78, 0x05, 0x00, 0xEB, 0x07, 0xC6, 0x05, 0xB4, 0xDA, 0x6C, 0x00, 0x01)
+    },
+    @{
+        Name        = 'update-check startup gate'
+        Description = 'JNZ -> JMP so update_check is loaded at startup even without a license (file offset 0x31B52).'
+        Original    = [byte[]](0x48, 0x8B, 0x86, 0xB0, 0x02, 0x00, 0x00, 0x80, 0x78, 0x05, 0x01, 0x75, 0x30)
+        Replacement = [byte[]](0x48, 0x8B, 0x86, 0xB0, 0x02, 0x00, 0x00, 0x80, 0x78, 0x05, 0x01, 0xEB, 0x30)
     }
 )
 
